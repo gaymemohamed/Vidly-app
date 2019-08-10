@@ -1,55 +1,48 @@
+const Joi = require('@hapi/joi');
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
-const geners = [
-    {
-        id: 1,
-        type: 'Action',
-        numberOfFilms: 20
-    },
-    {
-        id: 2,
-        type: 'Romantic',
-        numberOfFilms: 50
-    },
-    {
-        id: 3,
-        type: 'Drama',
-        numberOfFilms: 35
-    }
-];
 
-router.get('/', (req, res) => {
+const generSchema =new mongoose.Schema({
+    name : {
+        type : String,
+        required : true,
+        minlength: 5,
+        maxlength:50
+    }
+})
+
+const Gener = mongoose.model('Gener' , generSchema); 
+
+router.get('/',async (req, res) => {
+    const geners = await Gener.find();
     res.send(geners);
 
 })
 
-router.get('/:id', (req, res) => {
-    const gener = geners.find(g => g.id === parseInt(req.params.id));
+router.get('/:id',async (req, res) => {
+    const gener =await Gener.findById(req.params.id);
     if (!gener) {
         return res.status(404).send('this gener id is not exist');
     }
     return res.send(gener);
 })
 
-router.post('/', (req, res) => {
-    const gener = {
-        id: geners.length + 1,
-        type: req.body.type,
-        numberOfFilms: req.body.numberOfFilms
-    }
-
-    const schema = {
-        type: joi.string().min(3).required(),
-    };
+router.post('/', async(req, res) => {
     const { error } = validateGenre(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    geners.push(gener);
+    let gener =new Gener({
+        name:req.body.name
+    })
+
+    
+    gener= await gener.save();
     return res.send(gener);
 })
 
-router.put('/:id', (req, res) => {
-    const gener = geners.find(g => g.id === parseInt(req.params.id));
+router.put('/:id',async (req, res) => {
+    const gener =await Gener.findByIdAndUpdate(req.params.id, {name:req.body.name},{new:true});
     if (!gener) {
         return res.status(404).send('this gener id is not exist');
     }
@@ -57,21 +50,17 @@ router.put('/:id', (req, res) => {
     const { error } = validateGenre(req.body); 
     if (error) return res.status(400).send(error.details[0].message);
     
-    gener.type = req.body.type;
-    gener.numberOfFilms = req.body.numberOfFilms;
+    
 
     res.send(gener);
 })
 
 
-router.delete('/:id', (req, res) => {
-    const gener = geners.find(g => g.id === parseInt(req.params.id));
+router.delete('/:id', async(req, res) => {
+    const gener =await Gener.findByIdAndRemove(req.params.id);
     if (!gener) {
         return res.status(404).send('this gener id is not exist');
     }
-
-    const index = geners.indexOf(gener);
-    geners.splice(index, 1);
 
     return res.send(gener);
 })

@@ -1,7 +1,12 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const joi = require('@hapi/joi');
 const geners = require('./routes/geners');
 const app = express();
+
+mongoose.connect('mongodb://localhost/vidlyApp', { useNewUrlParser: true })
+    .then(() => console.log('Connected to database....'))
+    .catch(err => console.log('couldnot connect to db ....', err));
 
 // middleware
 app.use(express.json());
