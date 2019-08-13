@@ -1,18 +1,8 @@
-const Joi = require('@hapi/joi');
-const express = require('express');
+const {Gener , Validate} = require('../models/gener');
+const express = require('express'); 
 const mongoose = require('mongoose');
 const router = express.Router();
 
-const generSchema =new mongoose.Schema({
-    name : {
-        type : String,
-        required : true,
-        minlength: 5,
-        maxlength:50
-    }
-})
-
-const Gener = mongoose.model('Gener' , generSchema); 
 
 router.get('/',async (req, res) => {
     const geners = await Gener.find();
@@ -29,7 +19,7 @@ router.get('/:id',async (req, res) => {
 })
 
 router.post('/', async(req, res) => {
-    const { error } = validateGenre(req.body);
+    const { error } = Validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
     let gener =new Gener({
@@ -47,7 +37,7 @@ router.put('/:id',async (req, res) => {
         return res.status(404).send('this gener id is not exist');
     }
 
-    const { error } = validateGenre(req.body); 
+    const { error } = Validate(req.body); 
     if (error) return res.status(400).send(error.details[0].message);
     
     
@@ -65,12 +55,5 @@ router.delete('/:id', async(req, res) => {
     return res.send(gener);
 })
 
-function validateGenre(genre) {
-    const schema = {
-        name: Joi.string().min(3).required()
-    };
-
-    return Joi.validate(genre, schema);
-}
 
 module.exports = router;

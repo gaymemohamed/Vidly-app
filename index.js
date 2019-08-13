@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const joi = require('@hapi/joi');
 const geners = require('./routes/geners');
+const customers = require('./routes/customers');
 const app = express();
 
 mongoose.connect('mongodb://localhost/vidlyApp', { useNewUrlParser: true })
@@ -10,7 +11,7 @@ mongoose.connect('mongodb://localhost/vidlyApp', { useNewUrlParser: true })
 
 // middleware
 app.use(express.json());
-
+app.use('/api/customers' , customers);
 app.use('/api/geners/', geners);
 
 const port = process.env.PORT || 5000;
